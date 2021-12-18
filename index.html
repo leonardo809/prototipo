@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fire base crud</title>
+  </head>
+  <body>
+      <form id="uploader">
+      <input type="file" id="file" accept=".png,.jpg,.jpeg,.gif" /><br /><br />
+      <input type="text" id="texto" />
+      <button type="submit">Enviar</button>
+    </form>
+
+    <script type="module">
+      
+      // Import the functions you need from the SDKs you need
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-app.js";
+      import { getFirestore, doc,setDoc,addDoc,collection } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-firestore.js";
+      import { getStorage,ref,uploadBytes } from "https://www.gstatic.com/firebasejs/9.1.0/firebase-storage.js";
+      // TODO: Add SDKs for Firebase products that you want to use
+      // https://firebase.google.com/docs/web/setup#available-libraries
+      
+      const upload=async({file})=>{
+        const storage=getStorage()
+        var storageRef=ref(storage,`images/${file.name}`);
+        console.log(storageRef)
+         uploadBytes(storageRef, file).then((snapshot) => {
+  console.log('Uploaded a blob or file!');
+});
+        return storageRef;
+      }
+      const publish = async ({file},texto)=>{
+        const db = getFirestore();
+        const ref = collection(db, "y");
+        let storageRef = await upload({file});
+        return addDoc(ref, {
+          name: texto.value,
+          country: "Japan",
+          imagen: storageRef.fullPath
+        })
+          .then((docRef) => {
+            alert("exito");
+            console.log(docRef);
+            console.log("Document written with ID: ", docRef.id);
+          })
+          .catch((error) => alert("fracaso" + error));
+      }
+      // Your web app's Firebase configuration
+      async function main(){
+        const firebaseConfig = {
+        apiKey: "AIzaSyAGp_2frK6b4PXnoZ05WfBMwySU9QdCEb8",
+        authDomain: "castings-filtros.firebaseapp.com",
+        databaseURL: "https://castings-filtros-default-rtdb.firebaseio.com",
+        projectId: "castings-filtros",
+        storageBucket: "castings-filtros.appspot.com",
+        messagingSenderId: "351752169306",
+        appId: "1:351752169306:web:2af10a0634412ab25b3563",
+      };
+
+      // Initialize Firebase
+      const app = initializeApp(firebaseConfig);
+      
+
+      
+      
+      let form=document.querySelector("#uploader");
+      let texto = document.getElementById("texto");
+      let boton = document.getElementById("insbtn");
+      form.addEventListener("submit", (event) => {
+        event.preventDefault();
+
+        let fileInput = form.querySelector("#file");
+        let file = fileInput.files[0];
+        console.log(fileInput)
+        console.log(file)
+        publish({
+          file: file
+        },texto);
+    /*    const ref = collection(db, "y");
+        //add doc
+        addDoc(ref, {
+          name: texto.value,
+          country: "Japan",
+        })
+          .then((docRef) => {
+            alert("exito");
+            console.log(docRef);
+            console.log("Document written with ID: ", docRef.id);
+            // Create a root reference
+            
+
+          })
+          .catch((error) => alert("fracaso" + error));*/
+      });
+    }
+    main();
+    </script>
+  </body>
+</html>
